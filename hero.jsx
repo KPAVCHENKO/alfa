@@ -15,7 +15,7 @@ const AlfaCard = ({ tilt=0, onDark=false }) => (
       : 'drop-shadow(0 18px 28px rgba(239,49,36,.25)) drop-shadow(0 6px 14px rgba(0,0,0,.1))',
   }}>
     <img src="alfa-card-hero.png" alt="Альфа-Карта с кэшбэком"
-         style={{width:'100%',height:'auto',display:'block'}} loading="lazy"/>
+         style={{width:'100%',height:'auto',display:'block'}}/>
   </div>
 );
 

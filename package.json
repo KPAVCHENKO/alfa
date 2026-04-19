@@ -2,7 +2,7 @@
   "name": "svoy-alfa",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx serve . -s -p $PORT"
+    "start": "npx serve . -p $PORT"
   },
   "dependencies": {
     "serve": "^14.0.0"

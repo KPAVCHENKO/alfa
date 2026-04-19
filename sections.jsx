@@ -293,7 +293,7 @@ const FinalCTA = () => (
           <img src="alfa-card-glow.png" alt=""
                style={{width:'78%',maxWidth:280,height:'auto',display:'block',
                  filter:'drop-shadow(0 20px 36px rgba(239,49,36,.35))',
-                 animation:'finalFloat 6s ease-in-out infinite'}} loading="lazy"/>
+                 animation:'finalFloat 6s ease-in-out infinite'}}/>
         </div>
         <div style={{display:'grid',gap:10}}>
           <a className="btn btn-primary" href={CARD_LINK} target="_blank" rel="noopener">

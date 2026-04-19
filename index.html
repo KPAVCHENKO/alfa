@@ -7,6 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<!-- Preload images so they're ready before React renders -->
+<link rel="preload" as="image" href="alfa-card-hero.png" fetchpriority="high"/>
+<link rel="preload" as="image" href="alfa-card-glow.png" fetchpriority="high"/>
+<link rel="preload" as="image" href="alfa-card.jpg"/>
+
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -45,7 +51,33 @@
   }
   a{color:inherit;text-decoration:none}
   button{font-family:inherit}
-  #root{max-width:480px;margin:0 auto;position:relative;background:var(--bg);min-height:100vh;padding-bottom:112px;overflow:hidden}
+
+  /* Preloader */
+  #preloader{
+    position:fixed;inset:0;z-index:9999;
+    background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .35s ease;
+  }
+  #preloader.fade-out{opacity:0;pointer-events:none}
+  .pre-logo{
+    width:52px;height:52px;border-radius:14px;
+    background:#EF3124;color:#fff;
+    display:grid;place-items:center;
+    font-weight:900;font-size:32px;line-height:1;
+    box-shadow:0 8px 24px rgba(239,49,36,.4);
+    animation:preloaderPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes preloaderPulse{
+    0%,100%{transform:scale(1);box-shadow:0 8px 24px rgba(239,49,36,.4)}
+    50%{transform:scale(1.06);box-shadow:0 12px 32px rgba(239,49,36,.55)}
+  }
+
+  #root{
+    max-width:480px;margin:0 auto;position:relative;
+    background:var(--bg);min-height:100vh;
+    padding-bottom:112px;overflow:hidden;
+  }
   @media (min-width:520px){
     body{background:linear-gradient(180deg,#f4f4f6,#eceef2);padding:24px 0}
     #root{box-shadow:0 20px 60px rgba(0,0,0,.12);border-radius:28px}
@@ -54,7 +86,7 @@
   .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
   .stagger > * { transition-delay: var(--d, 0ms); }
-  /* Buttons tap feedback */
+  /* Buttons */
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:10px;
     width:100%;height:56px;border-radius:16px;border:0;
@@ -111,13 +143,76 @@
 </style>
 </head>
 <body>
+
+<!-- Preloader shown until images are ready -->
+<div id="preloader">
+  <div class="pre-logo">α</div>
+</div>
+
 <div id="root"></div>
 
 <script>
-  // Tweakable defaults
   window.__TWEAKS__ = /*EDITMODE-BEGIN*/{
     "heroVariant": "C"
   }/*EDITMODE-END*/;
+
+  // Preload both images, then hide preloader and mount React
+  (function() {
+    var images = ['alfa-card-hero.png', 'alfa-card-glow.png'];
+    var loaded = 0;
+
+    function tryMount() {
+      loaded++;
+      if (loaded >= images.length) {
+        // Small delay so fonts settle too
+        setTimeout(mountApp, 80);
+      }
+    }
+
+    images.forEach(function(src) {
+      var img = new Image();
+      img.onload = tryMount;
+      img.onerror = tryMount; // don't hang if image fails
+      img.src = src;
+    });
+
+    window.__mountApp = function() {
+      // Called by app.jsx after React renders
+      var pre = document.getElementById('preloader');
+      if (pre) {
+        pre.classList.add('fade-out');
+        setTimeout(function(){ pre.remove(); }, 400);
+      }
+    };
+
+    window.__mountReady = false;
+    window.__reactReady = false;
+
+    window.__checkMount = function() {
+      if (window.__mountReady && window.__reactReady) {
+        window.__mountApp();
+      }
+    };
+
+    // Set images ready flag after load
+    var origTryMount = tryMount;
+    tryMount = function() {
+      loaded++;
+      if (loaded >= images.length) {
+        setTimeout(function() {
+          window.__mountReady = true;
+          window.__checkMount();
+        }, 80);
+      }
+    };
+    loaded = 0; // reset after reassignment
+    images.forEach(function(src) {
+      var img = new Image();
+      img.onload = tryMount;
+      img.onerror = tryMount;
+      img.src = src;
+    });
+  })();
 </script>
 
 <script type="text/babel" src="icons.jsx"></script>

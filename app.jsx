@@ -24,6 +24,12 @@ function App() {
 
   useReveal();
 
+  // Signal preloader that React is ready
+  useEffect(() => {
+    window.__reactReady = true;
+    window.__checkMount && window.__checkMount();
+  }, []);
+
   // Tweaks protocol
   useEffect(() => {
     const onMsg = (e) => {
